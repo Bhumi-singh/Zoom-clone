@@ -1,5 +1,7 @@
 import express from "express";
 import {createServer} from "node:http";
+import dotenv from "dotenv";
+dotenv.config({ path: "../.env" });
 
 import {Server} from "socket.io";
 
@@ -26,13 +28,21 @@ app.get("/home", (req,res)=>{
     return res.json({"hello":"World"})
 } );
 
-const start=async()=>{
-    
-    console.log(`MONGO CONNECTED DB Host: ${ConnectionDb.connection.host}`);
-    server.listen(app.get("port"), ()=>{
-        console.log("LISTENING ON PORT 8000")
-    });
+const start = async () => {
+    try {
+        const connectionDb = await mongoose.connect(process.env.MONGO_URL);
 
-}
+        console.log(
+            `MONGO CONNECTED DB Host: ${connectionDb.connection.host}`
+        );
+
+        server.listen(app.get("port"), () => {
+            console.log("LISTENING ON PORT 8000");
+        });
+    } catch (error) {
+        console.error("MongoDB Connection Error:", error);
+        process.exit(1);
+    }
+};
 
 start();
