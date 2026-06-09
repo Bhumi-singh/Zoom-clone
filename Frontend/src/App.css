@@ -1,10 +1,10 @@
 .landingPageContainer {
     width: 100vw;
-    height: 100vh; 
+    height: 100vh;
     background: url("/public/background.png");
-    background-repeat:no-repeat;
-    background-size:cover;
-    color:white;
+    background-repeat: no-repeat;
+    background-size: cover;
+    color: white;
 }
 
 .landingPageContainer nav {
@@ -12,83 +12,61 @@
     padding-block: 1.6rem;
     display: flex;
     justify-content: space-between;
-    align-items:center;
+    align-items: center;
 }
 
 .landingPageContainer nav h2 {
     font-size: 1.8rem;
-    font-weight: 500; 
+    font-weight: 500;
 }
 
-.landingPageContainer nav .navlist{
-    display:flex;
-    gap: 1.6rem;
-    cursor: pointer;
-}
-
-.landingPageContainer {
+.landingPageContainer nav .navlist {
     display: flex;
-    justify-content: space-between;
-    padding-inline: 3rem;
-    height: 80vh;
+    gap: 1.6rem;
     align-items: center;
 }
 
-.landingPageContainer>div:nth-child(1){
-    font-size: 2.2rem;
+.landingPageContainer nav .navlist a {
+    text-decoration: none;
+    color: white;
 }
 
-.landingPageContainer>div:nth-child(1) div[role='button'] {
+.landingMainContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-inline: 3rem;
+    height: 80vh;
+}
+
+.landingMainContainer > div:first-child {
+    max-width: 40%;
+}
+
+.landingMainContainer > div:first-child h1 {
+    font-size: 3rem;
+}
+
+.landingMainContainer > div:first-child p {
+    font-size: 1.2rem;
+    margin-top: 0.5rem;
+}
+
+.landingMainContainer > div:first-child div[role="button"] {
     background: #D97500;
     width: fit-content;
     padding: 1rem;
     border-radius: 20px;
-    margin-top:1.9rem;
+    margin-top: 1.9rem;
 }
 
-.landingMainContainer>div:nth-child(1) div[role='button'] a {
-  text-decoration: none;
-  color: white;
-  font-size: 1.7rem;
+.landingMainContainer > div:first-child div[role="button"] a {
+    text-decoration: none;
+    color: white;
+    font-size: 1.2rem;
 }
 
-.landingMainContainer>div:nth-child(2) img {
-  height: 70vh;
-  width: auto;
-}
-
-.navBar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-inline: 20px;
-  text-align: center;
-
-}
-.meetContainer {
-  display: flex;
-  padding-inline: 20px;
-  height: 80vh;
-  gap: 10vw;
-  justify-content: center;
-}
-
-
-
-.leftPanel {
-  height: 100%;
-  display: flex;
-  align-items: center;
-
-}
-
-.rightPanel {
-  display: flex;
-  align-items: center;
-}
-
-.rightPanel > img {
-  width: 30vw;
-  height: auto;
-  border-radius: 20px;
+.landingMainContainer > div:last-child img {
+    height: 70vh;
+    width: auto;
 }

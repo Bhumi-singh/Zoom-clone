@@ -4,7 +4,7 @@ let connections = {}
 let messages = {}
 let timeOnline = {}
 
-export const connectToSocket = (server) =>{
+export const connectToSocket = (server) => {
     const io = new Server(server, {
         cors: {
             origin: "*",
@@ -14,83 +14,112 @@ export const connectToSocket = (server) =>{
         }
     });
 
-
     io.on("connection", (socket) => {
 
-
-        socket.on("join-call", (path) =>   {
-
-            if(connections[path] == undefined){
-                connections[path] = []
-            }
-            connections[path].push(socket.id);
-            timeOnline[socket.id] = new DataTransfer();
-            for(let a=0;a<connections[path].length;i++){
-                io.to(connections[path][a]).emit("user-joined", socket.id, connections[path]);
-            }
-
-            if(messages[path] != undefined){
-                for(let a=0; a<messages[path].length; ++a){
-                    io.to(socket.id).emit("chat-message", messages[path][a]['data'],
-                        messages[path][a]['sender'],messages[path][a]['socket-id-sensor'])
-                }
-            }
-
-        })
-
-        socket.on("signal", (told, message) => {
-            io.to(told).emit("signal", socket.id, message);
-        })
-
-        socket.on("chat-message", (data, sender) =>{
-
-            const [matchingRoom, found] = Object.entries(connections)
-                .reduce(([room, isFound], [roomKey, roomValue]) => {
-                    if(!isFound && roomValue.includes(socket.id)){
-                        return [roomKey, true];
-                    }
-                    return [ room, isFound];
-                }, ['', false]);
-
-            if(found == true){
-                if(messages[matchingRoom] == undefined){
-                    messages[matchingRoom] = []
+        socket.on("join-call", (path) => {
+            try {
+                if (connections[path] === undefined) {
+                    connections[path] = [];
                 }
 
-                messages[matchingRoom].push({ 'sender': sender, "data": data, "socket-id-sender": socket.id })
-                console.log("message", KeyboardEvent, ":", sender, data)
+                connections[path].push(socket.id);
+                timeOnline[socket.id] = new Date();
 
-                connections[matchingRoom].forEach((elem) => {
-                    io.to(elem).emit("chat-message", data, sender, socket.id)
-                })
-            }
-        })
+                // Notify everyone in room that a new user joined
+                for (let a = 0; a < connections[path].length; a++) {
+                    io.to(connections[path][a]).emit("user-joined", socket.id, connections[path]);
+                }
 
-        socket.on("disconnect", ()=>{
-            vardiffTime = Math.abs(timeOnline[socket.id] - new Date())
-            var key
-            for(const [k,v] of JSON.parse(JSON.stringify(Object.entries(connections)))){
-                for(let a=0;a<v.length;++a){
-                    if(v[a]== socket.id){
-                        key = k
-
-                        for(let a=0; a<connections[key].length; ++a){
-                            io.to(connections[key][a]).emit('user-left', socket.id)
-                        }
-
-                        var index = connections[key].indexOf(socket.id)
-
-                        connections[key].splice(index, 1)
-
-                        if(connections[key].length == 0){
-                            delete connections[key]
-                        }
+                // Send existing chat history to the newly joined user
+                if (messages[path] !== undefined) {
+                    for (let a = 0; a < messages[path].length; a++) {
+                        io.to(socket.id).emit(
+                            "chat-message",
+                            messages[path][a]['data'],
+                            messages[path][a]['sender'],
+                            messages[path][a]['socket-id-sender']  // FIX #1: was 'socket-id-sensor'
+                        );
                     }
                 }
+            } catch (e) {
+                console.error("Error in join-call:", e);
             }
-        })
+        });
 
-    })
+        socket.on("signal", (toId, message) => {
+            try {
+                console.log("SIGNAL", socket.id, "->", toId);
+                io.to(toId).emit("signal", socket.id, message);
+            } catch (e) {
+                console.error("Error in signal:", e);
+            }
+        });
+
+        socket.on("chat-message", (data, sender) => {
+            try {
+                // Find which room this socket belongs to
+                const [matchingRoom, found] = Object.entries(connections)
+                    .reduce(([room, isFound], [roomKey, roomValue]) => {
+                        if (!isFound && roomValue.includes(socket.id)) {
+                            return [roomKey, true];
+                        }
+                        return [room, isFound];
+                    }, ['', false]);
+
+                if (found === true) {
+                    if (messages[matchingRoom] === undefined) {
+                        messages[matchingRoom] = [];
+                    }
+
+                    messages[matchingRoom].push({
+                        'sender': sender,
+                        'data': data,
+                        'socket-id-sender': socket.id   // FIX #1: consistent key name
+                    });
+
+                    console.log("message:", sender, data);
+
+                    connections[matchingRoom].forEach((elem) => {
+                        io.to(elem).emit("chat-message", data, sender, socket.id);
+                    });
+                }
+            } catch (e) {
+                console.error("Error in chat-message:", e);
+            }
+        });
+
+        socket.on("disconnect", () => {
+            try {
+                var diffTime = Math.abs(timeOnline[socket.id] - new Date());
+                delete timeOnline[socket.id];
+
+                // FIX #2 & #3: removed JSON.parse/stringify deep clone, added break to stop after finding socket
+                for (const [roomKey, roomValue] of Object.entries(connections)) {
+                    const index = roomValue.indexOf(socket.id);
+
+                    if (index !== -1) {
+                        // Notify everyone in room that this user left
+                        connections[roomKey].forEach((id) => {
+                            io.to(id).emit('user-left', socket.id);
+                        });
+
+                        // Remove socket from room
+                        connections[roomKey].splice(index, 1);
+
+                        // Clean up empty room
+                        if (connections[roomKey].length === 0) {
+                            delete connections[roomKey];
+                        }
+
+                        break; // FIX #2: stop searching once found
+                    }
+                }
+            } catch (e) {
+                console.error("Error in disconnect:", e);
+            }
+        });
+
+    });
+
     return io;
 }
-

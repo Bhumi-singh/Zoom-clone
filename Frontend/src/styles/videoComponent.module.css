@@ -1,0 +1,133 @@
+.meetVideoContainer {
+    position: relative;
+    height: 100vh;
+    width: 100vw;
+    background: rgb(1, 4, 48);
+    overflow: hidden;
+}
+ 
+/* ── Local (self) video ── small PiP in bottom-left corner */
+.meetUserVideo {
+    position: absolute;
+    bottom: 90px;           /* sits above the control bar */
+    left: 16px;
+    height: 160px;
+    width: 220px;
+    object-fit: cover;
+    border-radius: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    z-index: 10;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+}
+ 
+/* ── Control buttons bar ── centered at bottom */
+.buttonContainers {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    padding: 10px 24px;
+    border-radius: 40px;
+    z-index: 10;
+}
+ 
+.buttonContainers svg {
+    font-size: 2rem;
+}
+ 
+/* ── Conference view ── remote video(s) fill the screen ── */
+.conferenceView {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+ 
+/* Single remote user → full screen */
+.conferenceView > div {
+    width: 100%;
+    height: 100%;
+}
+ 
+.conferenceView video {
+    width: 100%;
+    height: 100vh;
+    object-fit: cover;
+    border-radius: 0;
+    min-width: unset;
+}
+ 
+/* 2+ remote users → grid layout */
+.conferenceView:has(> div:nth-child(2)) {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 10px;
+    padding: 10px;
+    align-items: start;
+}
+ 
+.conferenceView:has(> div:nth-child(2)) > div {
+    width: 100%;
+    height: auto;
+}
+ 
+.conferenceView:has(> div:nth-child(2)) video {
+    width: 100%;
+    height: 45vh;
+    object-fit: cover;
+    border-radius: 12px;
+}
+ 
+/* ── Chat panel ── fixed right side */
+.chatRoom {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    width: 28vw;
+    min-width: 280px;
+    background: white;
+    border-radius: 16px 0 0 16px;
+    padding-inline: 20px;
+    z-index: 10;
+    box-shadow: -4px 0 20px rgba(0,0,0,0.3);
+}
+ 
+.chatContainer {
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+ 
+.chattingDisplay {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 0;
+    margin-bottom: 70px;    /* space for the input bar */
+}
+ 
+.chattingArea {
+    position: absolute;
+    bottom: 16px;
+    left: 0;
+    right: 0;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding-inline: 4px;
+}
+ 
+/* Make the chat text field take remaining space */
+.chattingArea > div {
+    flex: 1;
+}
